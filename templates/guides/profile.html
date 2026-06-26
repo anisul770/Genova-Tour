@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-7">
+        <div class="card border-0 shadow-sm p-4 bg-white rounded">
+            <h2 class="fw-bold text-dark mb-1">Guide Profile Settings</h2>
+            <p class="text-muted small mb-4">Manage your professional credentials and authorized operating languages.</p>
+
+            <form method="POST" action="{{ url_for('guides.profile') }}">
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">First Name</label>
+                        <input type="text" name="first_name" class="form-control" value="{{ current_user.first_name }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Last Name</label>
+                        <input type="text" name="last_name" class="form-control" value="{{ current_user.last_name }}">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Email Address</label>
+                    <input type="email" class="form-control" value="{{ current_user.email }}" readonly disabled>
+                    <div class="form-text text-muted">Account emails are locked to maintain academic database integrity.</div>
+                </div>
+
+                <!-- Spoken Languages Matrix -->
+                <div class="mb-4 p-3 bg-light rounded border">
+                    <label class="form-label d-block fw-bold text-success small mb-2">Update Spoken Languages</label>
+                    <p class="text-muted small mb-3">Note: Deselecting a language will restrict you from editing/managing tours currently published in that language.</p>
+                    <div class="row g-2">
+                        {% for lang in ['Italian', 'English', 'Spanish', 'Portuguese', 'German'] %}
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="languages" value="{{ lang }}" id="profile_lang_{{ lang }}"
+                                    {% if lang in guide_languages %}checked{% endif %}>
+                                    <label class="form-check-label small" for="profile_lang_{{ lang }}">{{ lang }}</label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <hr class="my-4">
+                <h5 class="fw-bold text-dark mb-3">Change Password</h5>
+                <div class="row g-2 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label small">New Password</label>
+                        <input type="password" name="new_password" class="form-control" placeholder="••••••••">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small">Confirm New Password</label>
+                        <input type="password" name="confirm_password" class="form-control" placeholder="••••••••">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{{ url_for('guides.dashboard') }}" class="btn btn-outline-secondary px-4 fw-bold">Back to Dashboard</a>
+                    <button type="submit" class="btn btn-success px-4 fw-bold shadow-sm">Update Profile Settings</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

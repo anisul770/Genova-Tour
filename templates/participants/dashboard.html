@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-4 mb-4 bg-white rounded shadow-sm border-start border-success border-4">
+    <h2 class="fw-bold text-dark mb-1">Personal Expedition Schedule</h2>
+    <p class="text-muted mb-0">Track upcoming reservations, cross-reference meeting checkpoints, and manage cancellation rules.</p>
+</div>
+
+<h4 class="mb-3 font-monospace fw-bold text-secondary">&gt; Scheduled Operations Registry</h4>
+<div class="card border-0 shadow-sm bg-white rounded">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th class="ps-3">Target Excursion Date</th>
+                    <th>Tour Layout Title</th>
+                    <th>Departure Point Baseline Coordinates</th>
+                    <th>Start Time</th>
+                    <th>Party Size Assigned</th>
+                    <th class="text-center">Operations Action Panel</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if agenda %}
+                    {% for item in agenda %}
+                        <tr>
+                            <td class="fw-bold ps-3 text-success">{{ item.tour_date }}</td>
+                            <td>
+                                <a href="{{ url_for('main.tour_detail', tour_id=item.tour_id) }}" class="text-decoration-none">
+                                    <span class="fw-bold text-dark d-block">{{ item.title }}</span>
+                                
+                                {% if item.guests %}
+                                    <small class="text-muted d-block">Group Registry: {{ item.guests|join(', ') }}</small>
+                                {% endif %}
+                                </a>
+                            </td>
+                            <td><span class="small text-secondary font-monospace">{{ item.meeting_point }}</span></td>
+                            <td><span class="badge bg-secondary">{{ item.start_time }}</span></td>
+                            <td><span class="badge bg-dark px-2 py-1">{{ item.total_count }} Seats</span></td>
+                            <td class="text-center">
+                                {% if item.can_cancel %}
+                                    <form action="{{ url_for('participants.cancel', res_id=item.res_id) }}" method="POST" onsubmit="return confirm('Confirm atomic cancellation deletion routine across infrastructure?');">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm fw-bold">Cancel Placement Space</button>
+                                    </form>
+                                {% else %}
+                                    <button class="btn btn-sm btn-secondary opacity-50 fw-bold" disabled title="Locked inside the mandatory 24h operational deployment freeze boundary window.">Locked (&lt;24h Left)</button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted italic bg-light">
+                            No active tour reservations mapped into your upcoming timeline index. 
+                            <br><a href="{{ url_for('main.index') }}" class="btn btn-success btn-sm fw-bold mt-3 px-4 shadow-sm">Explore Active Public Catalogues</a>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

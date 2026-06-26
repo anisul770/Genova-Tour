@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-5 mb-4 bg-dark text-white rounded-3 shadow position-relative style-hero-banner" style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7));">
+    <div class="container-fluid py-3">
+        <h1 class="display-5 fw-bold text-success">Discover Genova's Free Walking Routes</h1>
+        <p class="col-md-8 fs-5 text-light">Explore old-world maritime secrets, pristine hidden rolli palaces, and legendary local cuisines alongside certified native hosts.</p>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4 border-0">
+    <div class="card-body bg-white rounded p-4">
+        <form method="GET" action="{{ url_for('main.index') }}" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold text-secondary">Target Calendar Date</label>
+                <input type="date" name="date" class="form-format-control form-control" value="{{ date_val or '' }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold text-secondary">Max Acceptable Duration</label>
+                <select name="duration" class="form-select">
+                    <option value="">Any Duration</option>
+                    <option value="60" {% if duration == '60' %}selected{% endif %}>Up to 1 hour</option>
+                    <option value="90" {% if duration == '90' %}selected{% endif %}>Up to 1.5 hours</option>
+                    <option value="120" {% if duration == '120' %}selected{% endif %}>Up to 2 hours</option>
+                    <option value="180" {% if duration == '180' %}selected{% endif %}>Up to 3 hours</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold text-secondary">Operational Language</label>
+                <select name="language" class="form-select">
+                    <option value="">All Languages</option>
+                    <option value="Italian" {% if lang == 'Italian' %}selected{% endif %}>Italiano</option>
+                    <option value="English" {% if lang == 'English' %}selected{% endif %}>English</option>
+                    <option value="Spanish" {% if lang == 'Spanish' %}selected{% endif %}>Español</option>
+                    <option value="Portuguese" {% if lang == 'Portuguese' %}selected{% endif %}>Português</option>
+                    <option value="German" {% if lang == 'German' %}selected{% endif %}>Deutsch</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-grid">
+                <button type="submit" class="btn btn-success py-2 fw-bold">Filter Catalog</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<h3 class="mb-4 text-dark font-monospace fw-bold">&gt; Active Excursions Available</h3>
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% if tours %}
+        {% for tour in tours %}
+            <div class="col">
+                <div class="card h-100 shadow-sm border-0 card-hover-effect">
+                    {% if tour.main_image %}
+                        <img src="{{ url_for('static', filename='uploads/tours/' ~ tour.main_image) }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Tour Showcase Media">
+                    {% else %}
+                        <div class="bg-secondary text-white text-center py-5" style="height: 200px;">Fallback Image Mock Placeholder</div>
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <span class="badge bg-success mb-2 align-self-start">{{ tour.language }}</span>
+                        <h5 class="card-title fw-bold text-dark">{{ tour.title }}</h5>
+                        <p class="card-text text-muted text-truncate flex-grow-1">{{ tour.description }}</p>
+                        <div class="border-top pt-3 mt-2 text-secondary d-flex justify-content-between align-items-center small">
+                            <span>⏱ {{ tour.duration }} Mins</span>
+                            <span>👤 Host: {{ tour.first_name }}</span>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 pb-3">
+                        <a href="{{ url_for('main.tour_detail', tour_id=tour.id) }}" class="btn btn-outline-success btn-sm w-100 fw-bold">Examine Full Itinerary</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12 w-100 text-center py-5">
+            <div class="alert alert-secondary border-dashed py-4 bg-white shadow-sm">No localized touring operations currently match your specific structural query values. Try clearing query fields!</div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

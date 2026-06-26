@@ -1,0 +1,34 @@
+/* Custom CSS structure safely isolated from Bootstrap core rules overrides */
+
+.style-hero-banner {
+    background-size: cover;
+    background-position: center;
+    border-bottom: 4px solid #198754;
+}
+
+.card-hover-effect {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card-hover-effect:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,0.15)!important;
+}
+
+.style-gallery-img {
+    transition: transform 0.3s ease;
+}
+
+.style-gallery-img:hover {
+    transform: scale(1.05);
+}
+
+.border-dashed {
+    border: 2px dashed #dee2e6!important;
+}
+
+/* Ensure forms layout scannability is consistent across desktop browsers */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(0.3);
+}

@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}" class="text-success text-decoration-none">Catalog</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Tour Overview</li>
+  </ol>
+</nav>
+
+<div class="row g-4 mt-1">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm p-4 bg-white rounded">
+            <h1 class="fw-bold text-dark mb-2">{{ tour.title }}</h1>
+            <p class="text-muted d-flex gap-3 align-items-center mb-4">
+                <span class="badge bg-success py-2 px-3 fs-6">{{ tour.language }}</span>
+                <span>⏱ Duration: <strong>{{ tour.duration }} minutes</strong></span>
+                <span>👥 Max Capacity: <strong>{{ tour.max_participants }} tourists</strong></span>
+            </p>
+            
+            <h5 class="fw-bold border-bottom pb-2 text-secondary font-monospace">1. Structural Overview</h5>
+            <p class="fs-6 lead text-secondary mb-4">{{ tour.description }}</p>
+
+            <h5 class="fw-bold border-bottom pb-2 text-secondary font-monospace">2. Itinerary Stops Timeline (Min 4 Tracking Checkpoints)</h5>
+            <ol class="list-group list-group-numbered list-group-flush mb-4">
+                {% for stop in tour.stops %}
+                    <li class="list-group-item bg-transparent py-3 fw-semibold text-dark">{{ stop }}</li>
+                {% endfor %}
+            </ol>
+
+            <h5 class="fw-bold border-bottom pb-2 text-secondary font-monospace">3. Promotional Showcases (Exact 5 Images Framework)</h5>
+            <div class="row g-2 mt-2">
+                {% for img in tour.images %}
+                    <div class="col-md-4">
+                        <div class="card border-0 overflow-hidden shadow-sm">
+                            <img src="{{ url_for('static', filename='uploads/tours/' ~ img) }}" class="img-fluid style-gallery-img" style="height: 140px; object-fit: cover;" alt="Promo Component Thumbnail">
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow bg-white p-4 sticky-top" style="top: 20px;">
+            <h4 class="fw-bold text-dark mb-3 border-bottom pb-2">Tour Attributes</h4>
+            <ul class="list-unstyled text-secondary mb-4 gap-2 d-flex flex-column">
+                <li>📍 <strong>Meeting Base:</strong> <br><span class="text-dark">{{ tour.meeting_point }}</span></li>
+                <li class="mt-2">🧑‍💼 <strong>Host Operator:</strong> <span class="text-dark">{{ tour.first_name }} {{ tour.last_name }}</span></li>
+            </ul>
+
+            <h5 class="fw-bold text-dark small font-monospace mb-2">WEEKLY DISPATCH SCHEDULE</h5>
+            <div class="table-responsive mb-4">
+                <table class="table table-sm table-bordered align-middle text-center mb-0">
+                    <thead class="table-dark">
+                        <tr><th>Day</th><th>Time</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for s in tour.schedules %}
+                            <tr><td class="fw-bold small">{{ s.day_of_week }}</td><td><span class="badge bg-secondary">{{ s.start_time }}</span></td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if current_user.is_authenticated and current_user.is_participant %}
+                <form action="{{ url_for('participants.book_tour', tour_id=tour.id) }}" method="POST" class="border-top pt-3">
+                    <h5 class="fw-bold text-success h6 mb-3">Secure Tickets Online</h5>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Select Intended Target Date</label>
+                        <input type="date" name="tour_date" required class="form-control">
+                    </div>
+
+                    <p class="small text-muted mb-2">You can append up to 3 extra travelers below (Max 4 per block party ticket size):</p>
+                    <div id="guests-input-container" class="gap-2 d-flex flex-column mb-3">
+                        </div>
+
+                    <button type="button" id="add-guest-btn" class="btn btn-outline-secondary btn-sm w-100 mb-3 fw-bold">+ Add Guest</button>
+                    <button type="submit" class="btn btn-success w-100 fw-bold py-2 shadow-sm">Commit Atomic Allocation Booking</button>
+                </form>
+
+                <script>
+                    let guestIdx = 0;
+                    document.getElementById('add-guest-btn').addEventListener('click', () => {
+                        if (guestIdx >= 3) { alert('Maximum extra guest additions reached.'); return; }
+                        guestIdx++;
+                        
+                        const container = document.getElementById('guests-input-container');
+                        const row = document.createElement('div');
+                        row.className = "row g-2 border p-2 rounded bg-light align-items-center mb-2";
+                        row.innerHTML = `
+                            <div class="col-5">
+                                <input type="text" name="guest_first_name[]" placeholder="First Name" required class="form-control form-control-sm">
+                            </div>
+                            <div class="col-5">
+                                <input type="text" name="guest_last_name[]" placeholder="Last Name" required class="form-control form-control-sm">
+                            </div>
+                            <div class="col-2 text-center">
+                                <button type="button" class="btn p-0 text-danger border-0 fw-bold remove-guest-btn" style="font-size: 1.5rem; line-height: 1;" aria-label="Remove Guest">&times;</button>
+                            </div>
+                        `;
+                        
+                        row.querySelector('.remove-guest-btn').addEventListener('click', () => {
+                            row.remove();
+                            guestIdx--; 
+                        });
+                        
+                        container.appendChild(row);
+                    });
+                </script>
+            {% elif current_user.is_authenticated %}
+                <div class="alert alert-warning text-center small mb-0">Guide roles are structurally blocked from reserving tourist spaces.</div>
+            {% else %}
+                <div class="d-grid gap-2 border-top pt-3">
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-dark fw-bold">Sign In to Register Placement</a>
+                    <span class="text-center text-muted small">Public visitors can inspect catalog views freely anytime.</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

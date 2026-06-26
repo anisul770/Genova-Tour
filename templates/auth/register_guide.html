@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm p-4 bg-white rounded">
+            <h2 class="fw-bold text-dark text-center mb-2">Guide Application</h2>
+            <p class="text-muted text-center small mb-4">Create your identity to manage personalized tours across Genova.</p>
+            
+            <form method="POST" action="{{ url_for('auth.register_guide') }}">
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">First Name</label>
+                        <input type="text" name="first_name" required class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Last Name</label>
+                        <input type="text" name="last_name" required class="form-control">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Professional Email</label>
+                    <input type="email" name="email" required class="form-control">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label small fw-semibold">Secure Password</label>
+                    <input type="password" name="password" required class="form-control" placeholder="Minimum 8 characters">
+                </div>
+                
+                <div class="mb-4 p-3 bg-light rounded border">
+                    <label class="form-label d-block fw-bold text-success small mb-2">Spoken Languages (Select All Applicable)</label>
+                    <p class="text-muted small mb-3">Constraint Check: You will only be authorized to host operations in languages declared here.</p>
+                    <div class="row g-2">
+                        {% for lang in ['Italian', 'English', 'Spanish', 'Portuguese', 'German'] %}
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="languages" value="{{ lang }}" id="lang_{{ lang }}">
+                                    <label class="form-check-label small" for="lang_{{ lang }}">{{ lang }}</label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 fw-bold py-2">Submit Guide Registration</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
