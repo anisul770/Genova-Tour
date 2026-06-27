@@ -119,6 +119,14 @@ def profile():
 
     return render_template('participants/profile.html')
 
+@participants_bp.route('/participant_to_guide', methods=['GET', 'POST'])
+@login_required
+def participant_to_guide():
+    """
+    Transition a participant account to a guide account.
+    """
+    return render_template('participants/register_guide.html')
+
 @participants_bp.route('/register_guide', methods=['GET', 'POST'])
 @login_required
 def register_guide():
