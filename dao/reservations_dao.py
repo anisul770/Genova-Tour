@@ -1,4 +1,5 @@
 from dao.db import get_db_connection
+from sqlite3 import IntegrityError
 from datetime import datetime, timedelta
 
 def get_booked_seats_count(tour_id, date_string):
@@ -46,8 +47,8 @@ def check_participant_overlap(participant_id, target_date_str, tour_id):
     t_start = datetime.strptime(f"{target_date_str} {target_time_str}", "%Y-%m-%d %H:%M")
     t_end = t_start + timedelta(minutes=target_duration)
 
-    # Fetch existing commitments for this specific day
-    commitments = conn.execute("""
+    # Fetch existing reservations for this specific day
+    reservations = conn.execute("""
         SELECT r.tour_id, ts.start_time, t.duration 
         FROM reservations r
         JOIN tours t ON r.tour_id = t.id
@@ -55,18 +56,18 @@ def check_participant_overlap(participant_id, target_date_str, tour_id):
         WHERE r.participant_id = ? AND r.tour_date = ?
     """, (participant_id, target_date_str)).fetchall()
 
-    for c in commitments:
-        c_day = parsed_date.strftime("%A")
+    for r in reservations:
+        r_day = parsed_date.strftime("%A")
         # Ensure scheduling checks extract correct matching days
-        c_sched_time = conn.execute("SELECT start_time FROM tour_schedules WHERE tour_id = ? AND day_of_week = ?", (c['tour_id'], c_day)).fetchone()
-        if not c_sched_time:
+        r_sched_time = conn.execute("SELECT start_time FROM tour_schedules WHERE tour_id = ? AND day_of_week = ?", (r['tour_id'], r_day)).fetchone()
+        if not r_sched_time:
             continue
             
-        c_start = datetime.strptime(f"{target_date_str} {c_sched_time['start_time']}", "%Y-%m-%d %H:%M")
-        c_end = c_start + timedelta(minutes=c['duration'])
+        r_start = datetime.strptime(f"{target_date_str} {r_sched_time['start_time']}", "%Y-%m-%d %H:%M")
+        r_end = r_start + timedelta(minutes=r['duration'])
         
         # Intersect checks configuration
-        if max(t_start, c_start) < min(t_end, c_end):
+        if max(t_start, r_start) < min(t_end, r_end):
             conn.close()
             return True # Overlap conflict found
 
@@ -170,13 +171,10 @@ def get_guide_tour_metrics(tour_id):
     conn = get_db_connection()
     # Fetch distinct operational dates booked so far
     dates_rows = conn.execute("SELECT DISTINCT tour_date FROM reservations WHERE tour_id = ? ORDER BY tour_date DESC", (tour_id,)).fetchall()
-    
     metrics = []
     for d_row in dates_rows:
         date_str = d_row['tour_date']
-        
         res_list = conn.execute("SELECT id, participant_id FROM reservations WHERE tour_id = ? AND tour_date = ?", (tour_id, date_str)).fetchall()
-        
         total_p = 0
         bookings_manifest = []
         for r in res_list:
@@ -222,7 +220,7 @@ def submit_tour_attendance_report(tour_id, date_string, head_count, image_filena
         )
         conn.commit()
         return True
-    except sqlite3.IntegrityError:
+    except IntegrityError:
         return False
     finally:
         conn.close()

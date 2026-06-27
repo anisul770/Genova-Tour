@@ -1,5 +1,6 @@
 from dao.db import get_db_connection
 from models import User
+from sqlite3 import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 
 def get_user_by_id(user_id):
@@ -42,8 +43,47 @@ def register_new_user(email, password, first_name, last_name, role, languages_li
         )
         conn.commit()
         return True
-    except sqlite3.IntegrityError:
+    except IntegrityError:
         # Email collision handling trap
+        return False
+    finally:
+        conn.close()
+
+def update_user_profile(user_id, first_name, last_name, new_password=None,languages_list=None,role=None):
+    """
+    Unified function to update any user profile (Guide or Participant).
+    """
+    conn = get_db_connection()
+    try:
+        if new_password and languages_list:
+            langs_str = ",".join(languages_list) if languages_list else None
+            hashed_pw = generate_password_hash(new_password,method='pbkdf2')
+            print(f"Updating user_id={user_id} with first_name={first_name}, last_name={last_name}, new_password={'[REDACTED]'}")
+            conn.execute(
+                "UPDATE users SET first_name = ?, last_name = ?, password_hash = ?, languages = ? WHERE id = ?",
+                (first_name, last_name, hashed_pw, langs_str, user_id)
+            )
+        elif languages_list:
+            langs_str = ",".join(languages_list) if languages_list else None
+            conn.execute(
+                "UPDATE users SET first_name = ?, last_name = ?, languages = ? WHERE id = ?",
+                (first_name, last_name, langs_str, user_id)
+            )
+        else:
+            conn.execute(
+                "UPDATE users SET first_name = ?, last_name = ? WHERE id = ?",
+                (first_name, last_name, user_id)
+            )
+
+        if role:
+            conn.execute(
+                "UPDATE users SET role = ? WHERE id = ?",
+                (role, user_id)
+            )
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Database error: {e}")
         return False
     finally:
         conn.close()

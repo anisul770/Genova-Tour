@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
+
+{% block My_Agenda %}
+    active
+{% endblock My_Agenda %}
+
 {% block content %}
 <div class="p-4 mb-4 bg-white rounded shadow-sm border-start border-success border-4">
     <h2 class="fw-bold text-dark mb-1">Personal Expedition Schedule</h2>
     <p class="text-muted mb-0">Track upcoming reservations, cross-reference meeting checkpoints, and manage cancellation rules.</p>
 </div>
 
-<h4 class="mb-3 font-monospace fw-bold text-secondary">&gt; Scheduled Operations Registry</h4>
+<h4 class="mb-3 font-monospace fw-bold text-secondary">Scheduled Operations Registry</h4>
 <div class="card border-0 shadow-sm bg-white rounded">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">

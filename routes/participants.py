@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from datetime import datetime
 from dao.tours_dao import get_tour_complete_details
+from dao.users_dao import update_user_profile
 from dao.reservations_dao import get_booked_seats_count, check_participant_overlap, create_reservation, cancel_reservation, get_participant_agenda
 
 participants_bp = Blueprint('participants', __name__)
@@ -92,15 +93,36 @@ def profile():
         return redirect(url_for('main.index'))
 
     if request.method == 'POST':
-        current_user.first_name = request.form.get('first_name')
-        current_user.last_name = request.form.get('last_name')
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
         
-        password = request.form.get('password')
-        if password:
-            current_user.set_password(password)
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        
+        password_to_update = None
+        if new_password:
+            if new_password == confirm_password:
+                password_to_update = new_password
+            else:
+                flash('Password confirmation mismatch.', 'danger')
+                return redirect(url_for('participants.profile'))
+
+        print(f"Updating profile for user_id={current_user.id} with first_name={first_name}, last_name={last_name}, password_to_update={'[REDACTED]' if password_to_update else None}")   
+        success = update_user_profile(current_user.id, first_name, last_name, password_to_update)
+        print(f"Update user profile result: {success}")
+        if success:
+            flash('Tourist credentials modified successfully.', 'success')
+        else:
+            flash('An error occurred updating your profile.', 'danger')
             
-        # db.session.commit()
-        flash('Tourist credentials modified successfully.', 'success')
         return redirect(url_for('participants.dashboard'))
 
     return render_template('participants/profile.html')
+
+@participants_bp.route('/register_guide', methods=['GET', 'POST'])
+@login_required
+def register_guide():
+    if request.method == 'POST':
+        selected_languages = request.form.getlist('languages')
+        update_user_profile(current_user.id, current_user.first_name, current_user.last_name,languages_list=selected_languages,role='guide')
+    return render_template('guides/dashboard.html')

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm p-4 bg-white rounded">
+            <h2 class="fw-bold text-dark text-center mb-2">Register as a Guide</h2>
+            <p class="text-muted text-center small mb-4">Complete your registration by selecting the languages you are qualified to teach.</p>
+            
+            <form method="POST" action="{{ url_for('participants.register_guide') }}">
+                <div class="mb-4 p-3 bg-light rounded border">
+                    <label class="form-label d-block fw-bold text-success small mb-2">Spoken Languages (Select All Applicable)</label>
+                    <p class="text-muted small mb-3">You will only be authorized to host operations in languages declared here.</p>
+                    <div class="row g-2">
+                        {% for lang in ['Italian', 'English', 'Spanish', 'Portuguese', 'German'] %}
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="languages" value="{{ lang }}" id="lang_{{ lang }}"
+                                           {% if current_user.is_authenticated and current_user.languages and lang in current_user.languages %}checked{% endif %}>
+                                    <label class="form-check-label small" for="lang_{{ lang }}">{{ lang }}</label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 fw-bold py-2">Complete Guide Registration</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

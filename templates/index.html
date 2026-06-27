@@ -1,4 +1,10 @@
 {% extends 'base.html' %}
+
+{% block explore_tours %}
+    active
+{% endblock explore_tours %}
+
+
 {% block content %}
 <div class="p-5 mb-4 bg-dark text-white rounded-3 shadow position-relative style-hero-banner" style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7));">
     <div class="container-fluid py-3">
@@ -42,7 +48,7 @@
     </div>
 </div>
 
-<h3 class="mb-4 text-dark font-monospace fw-bold">&gt; Active Excursions Available</h3>
+<h3 class="mb-4 text-dark font-monospace fw-bold">Active Excursions Available</h3>
 <div class="row row-cols-1 row-cols-md-3 g-4">
     {% if tours %}
         {% for tour in tours %}

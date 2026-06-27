@@ -85,13 +85,15 @@
                     <p class="text-muted text-xs mb-2">Framework rule constraint: You must attach exactly 5 files sequentially. Leave blank to retain existing assets if editing.</p>
                     <input type="file" name="promo_photos" multiple class="form-control" {% if not tour %}required{% endif %}>
                     <div class="row g-2 mt-2">
-                        {% for img in tour.images %}
-                            <div class="col-md-4">
-                                <div class="card border-0 overflow-hidden shadow-sm">
-                                    <img src="{{ url_for('static', filename='uploads/tours/' ~ img) }}" class="img-fluid style-gallery-img" style="height: 140px; object-fit: cover;" alt="Promo Component Thumbnail">
+                        {% if tour %}
+                            {% for img in tour.images %}
+                                <div class="col-md-4">
+                                    <div class="card border-0 overflow-hidden shadow-sm">
+                                        <img src="{{ url_for('static', filename='uploads/tours/' ~ img) }}" class="img-fluid style-gallery-img" style="height: 140px; object-fit: cover;" alt="Promo Component Thumbnail">
+                                    </div>
                                 </div>
-                            </div>
-                        {% endfor %}
+                            {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
 

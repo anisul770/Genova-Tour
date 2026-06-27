@@ -1,9 +1,9 @@
 import os
-import secrets
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
 from PIL import Image
+from dao.users_dao import update_user_profile
 from dao.tours_dao import get_tours_by_guide, has_tour_reservations, create_tour, get_tour_complete_details, update_tour_full, update_tour_limited
 from dao.reservations_dao import get_guide_tour_metrics, submit_tour_attendance_report
 
@@ -109,7 +109,9 @@ def create_new_tour():
         try:
             # Fix: Pass dynamic enumerate indexes down to the processing layer
             for idx, f in enumerate(uploaded_files):
-                fn = process_and_save_image(f, current_app.config['UPLOAD_FOLDER_PROMO'], idx=idx)
+                img = Image.open(f)
+                width, height = img.size
+                fn = process_and_save_image(f, current_app.config['UPLOAD_FOLDER_PROMO'],target_height=height, idx=idx)
                 filenames.append(fn)
         except Exception:
             flash("Pillow layer processing failed. Check your file extension types.", "danger")
@@ -144,7 +146,9 @@ def edit_tour(tour_id):
         filenames = []
         if has_new_images:
             for idx, f in enumerate(uploaded_files):
-                fn = process_and_save_image(f, current_app.config['UPLOAD_FOLDER_PROMO'], idx=idx)
+                img = Image.open(f)
+                width, height = img.size
+                fn = process_and_save_image(f, current_app.config['UPLOAD_FOLDER_PROMO'],target_height=height, idx=idx)
                 filenames.append(fn)
 
         if locked:
@@ -199,7 +203,9 @@ def report_tour(tour_id, date_str):
 
         try:
             # No sequence index needed here as report images are uploaded singular per record request
-            fn = process_and_save_image(file_img, current_app.config['UPLOAD_FOLDER_REPORTS'])
+            img = Image.open(file_img)
+            width, height = img.size
+            fn = process_and_save_image(file_img, current_app.config['UPLOAD_FOLDER_REPORTS'],target_height=height)
             success = submit_tour_attendance_report(tour_id, date_str, count, fn)
             if success:
                 flash("Attendance verification index data declared and stored safely. Commission logged.", "success")
@@ -220,22 +226,26 @@ def profile():
         return redirect(url_for('main.index'))
 
     if request.method == 'POST':
-        current_user.first_name = request.form.get('first_name')
-        current_user.last_name = request.form.get('last_name')
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
         
         selected_languages = request.form.getlist('languages')
+        print(f"Selected languages for update: {selected_languages}")
         
         new_password = request.form.get('new_password')
         confirm_password = request.form.get('confirm_password')
         
+        password_to_update = None
         if new_password:
             if new_password == confirm_password:
-                current_user.set_password(new_password)
+                password_to_update = new_password
             else:
                 flash('Password confirmation mismatch.', 'danger')
                 return redirect(url_for('guides.profile'))
         
-        flash('Guide profile configuration successfully committed.', 'success')
+        update_user_profile(current_user.id, first_name, last_name, password_to_update, selected_languages)
+        
+        flash('Guide profile updated successfully.', 'success')
         return redirect(url_for('guides.dashboard'))
 
     guide_languages = [lang for lang in current_user.languages] if hasattr(current_user, 'languages') else []

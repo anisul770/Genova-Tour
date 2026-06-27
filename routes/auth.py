@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required
-from dao.users_dao import verify_user_credentials, get_user_by_email, register_new_user
+from dao.users_dao import verify_user_credentials, register_new_user
 
 auth_bp = Blueprint('auth', __name__)
 
