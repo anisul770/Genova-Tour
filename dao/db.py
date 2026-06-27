@@ -1,12 +1,12 @@
-import os
 import sqlite3
 
 def get_db_connection():
     """
-    Establishes an active database session context.
-    Enforces foreign keys explicitly and provisions dictionaries for row mappings.
+    Establishes an active database session context using the absolute path.
     """
-    db_path = os.getenv("DATABASE_PATH")
+    # Absolute path to your database on PythonAnywhere
+    db_path = 'database.db'
+    
     conn = sqlite3.connect(db_path)
     conn.execute("PRAGMA foreign_keys = ON;")
     conn.row_factory = sqlite3.Row
