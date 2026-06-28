@@ -1,0 +1,14 @@
+All users password are "password123"
+
+Guide -> 
+    1. marco.rossi@zenawalks.it.      
+    2. elena.bianchi@zenawalks.it. 
+
+participants ->
+    1. john.doe@gmail.com
+    2. anisulhaque773@gmail.com
+    3. clara.schmidt@web.de
+
+
+live site : 
+https://anisul770.pythonanywhere.com/
