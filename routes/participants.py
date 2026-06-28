@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from datetime import datetime
 from dao.tours_dao import get_tour_complete_details
 from dao.users_dao import update_user_profile
-from dao.reservations_dao import get_booked_seats_count, check_participant_overlap, create_reservation, cancel_reservation, get_participant_agenda
+from dao.reservations_dao import get_booked_seats_count, check_participant_overlap, create_reservation, cancel_reservation, get_participant_agenda,get_participant_history
 
 participants_bp = Blueprint('participants', __name__)
 
@@ -134,3 +134,9 @@ def register_guide():
         selected_languages = request.form.getlist('languages')
         update_user_profile(current_user.id, current_user.first_name, current_user.last_name,languages_list=selected_languages,role='guide')
     return render_template('guides/dashboard.html')
+
+@participants_bp.route('/history')
+@login_required
+def history():
+    history_data = get_participant_history(current_user.id)
+    return render_template('participants/participant_history.html', history=history_data)

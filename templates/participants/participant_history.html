@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="fw-bold">My Tour History</h2>
+    {% if history %}
+        <div class="list-group mt-3">
+            {% for tour in history %}
+                <div class="list-group-item">
+                    <h5 class="mb-1">{{ tour.title }}</h5>
+                    <small class="text-muted">Completed on: {{ tour.tour_date }}</small>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted mt-3">You haven't completed any tours yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

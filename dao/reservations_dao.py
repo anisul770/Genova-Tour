@@ -224,3 +224,20 @@ def submit_tour_attendance_report(tour_id, date_string, head_count, image_filena
         return False
     finally:
         conn.close()
+
+
+def get_participant_history(participant_id):
+    conn = get_db_connection()
+    # Fetch tours where the date is in the past
+    today = datetime.now().strftime("%Y-%m-%d")
+    
+    rows = conn.execute("""
+        SELECT r.id AS res_id, r.tour_date, t.title
+        FROM reservations r
+        JOIN tours t ON r.tour_id = t.id
+        WHERE r.participant_id = ? AND r.tour_date < ?
+        ORDER BY r.tour_date DESC
+    """, (participant_id, today)).fetchall()
+    
+    conn.close()
+    return [dict(r) for r in rows]
